@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorador Interactivo de Gráficas y Funciones Lineales</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Neutrals & Academic Blue -->
+    <!-- Application Structure Plan: The SPA is designed as a vertical, scrollable learning journey, mirroring the pedagogical flow of the source presentation. It starts with 'why', moves to 'what' (types of graphs in interactive tabs), then 'how' (a deep, interactive dive into linear functions with real-time sliders), and finally 'application' (a practical scatter plot example with hover effects and a toggleable trendline). This structure turns passive slides into an active exploration tool, enhancing understanding and retention. Navigation at the top allows users to jump between key learning modules. -->
+    <!-- Visualization & Content Choices: 
+        - Why graph?: Goal: Inform -> Method: Text blocks with icons. Justification: Simple, direct communication.
+        - Graph Types: Goal: Organize/Compare -> Method: Interactive tabs with small Chart.js examples. Interaction: Clicking tabs reveals graph types. Justification: Compactly organizes foundational knowledge, encouraging exploration.
+        - Linear Functions: Goal: Explain concept -> Method: Interactive Chart.js line chart with sliders for slope (m) and y-intercept (b). Interaction: Sliders update the chart and descriptive text in real-time. Justification: Makes the abstract formula y=mx+b tangible and intuitive, which is the core interactive element.
+        - Practical Example: Goal: Show relationship -> Method: HTML table and an interactive Chart.js scatter plot. Interaction: Hovering a plot point highlights the corresponding table row; a button toggles the trendline. Justification: Visually connects raw data, its graphical representation, and the underlying linear model.
+        - All visualizations use Chart.js on a Canvas element. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .tab-active {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+            color: #2563eb;
+        }
+        .table-row-highlight {
+            background-color: #dbeafe;
+            transform: scale(1.02);
+            transition: all 0.2s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-slate-800">
+
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <h1 class="text-xl font-bold text-blue-600">Lección Interactiva</h1>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#intro" class="text-gray-600 hover:text-blue-600 transition">Introducción</a>
+                    <a href="#tipos" class="text-gray-600 hover:text-blue-600 transition">Tipos de Gráficas</a>
+                    <a href="#funciones" class="text-gray-600 hover:text-blue-600 transition">Funciones Lineales</a>
+                    <a href="#ejemplo" class="text-gray-600 hover:text-blue-600 transition">Ejemplo Práctico</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        
+        <section id="intro" class="text-center py-16">
+            <h2 class="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">Explorando Datos: Gráficas, Tablas y Funciones Lineales</h2>
+            <p class="mt-6 text-lg max-w-3xl mx-auto text-slate-600">Una guía interactiva para entender cómo visualizar y analizar información de manera efectiva.</p>
+        </section>
+
+        <section class="bg-white p-8 rounded-xl shadow-md my-12">
+            <h3 class="text-2xl font-bold text-center mb-8">¿Por qué es importante graficar?</h3>
+            <div class="grid md:grid-cols-3 gap-8 text-center">
+                <div class="flex flex-col items-center">
+                    <div class="bg-blue-100 text-blue-600 rounded-full h-16 w-16 flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                    </div>
+                    <h4 class="font-semibold text-lg">Visualización Clara</h4>
+                    <p class="text-slate-600 mt-2">Las gráficas nos ayudan a ver patrones, tendencias y relaciones en los datos de un vistazo.</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <div class="bg-blue-100 text-blue-600 rounded-full h-16 w-16 flex items-center justify-center mb-4">
+                       <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                    </div>
+                    <h4 class="font-semibold text-lg">Comunicación Efectiva</h4>
+                    <p class="text-slate-600 mt-2">Es más fácil entender información compleja cuando se presenta visualmente.</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <div class="bg-blue-100 text-blue-600 rounded-full h-16 w-16 flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M12 6V3m0 18v-3" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18a6 6 0 100-12 6 6 0 000 12z" /></svg>
+                    </div>
+                    <h4 class="font-semibold text-lg">Toma de Decisiones</h4>
+                    <p class="text-slate-600 mt-2">Al visualizar los datos, podemos tomar decisiones más informadas y basadas en evidencia.</p>
+                </div>
+            </div>
+        </section>
+
+
+        <section id="tipos" class="py-12">
+            <h3 class="text-3xl font-bold text-center mb-2">El Punto de Partida: Tablas y Tipos de Gráficas</h3>
+            <p class="text-center text-slate-600 mb-10 max-w-3xl mx-auto">Todo análisis visual comienza con datos organizados en tablas. A partir de ahí, elegimos la gráfica adecuada para contar la historia que esconden los números. Explora los tipos más comunes a continuación.</p>
+            
+            <div class="border-b border-gray-200 mb-6">
+                <nav class="flex -mb-px space-x-6" aria-label="Tabs">
+                    <button class="tab-btn tab-active whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" data-tab="barras">Barras</button>
+                    <button class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="lineas">Líneas</button>
+                    <button class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="circular">Circular</button>
+                    <button class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="dispersion">Dispersión</button>
+                </nav>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-8 items-center">
+                <div class="prose max-w-none">
+                    <div id="desc-barras" class="tab-content">
+                        <h4>Gráficos de Barras</h4>
+                        <p>Son perfectos para comparar cantidades entre diferentes categorías. Cada barra representa una categoría y su altura (o longitud) es proporcional al valor que representa. Son muy intuitivos y fáciles de leer.</p>
+                        <p><strong>Uso ideal:</strong> Comparar ventas por producto, número de estudiantes por clase, etc.</p>
+                    </div>
+                    <div id="desc-lineas" class="tab-content hidden">
+                        <h4>Gráficos de Líneas</h4>
+                        <p>Muestran la evolución de una variable a lo largo del tiempo. Los puntos de datos se conectan con líneas, lo que facilita la visualización de tendencias, ascensos y descensos.</p>
+                        <p><strong>Uso ideal:</strong> Seguimiento del precio de una acción, temperatura mensual, crecimiento de visitantes de un sitio web.</p>
+                    </div>
+                    <div id="desc-circular" class="tab-content hidden">
+                        <h4>Gráficos Circulares (o de Pastel)</h4>
+                        <p>Representan proporciones de un todo. El círculo completo equivale al 100%, y cada "porción" muestra el porcentaje que le corresponde a una categoría. Son efectivos cuando hay pocas categorías.</p>
+                        <p><strong>Uso ideal:</strong> Distribución de presupuesto, cuota de mercado, resultados de una encuesta.</p>
+                    </div>
+                    <div id="desc-dispersion" class="tab-content hidden">
+                        <h4>Gráficos de Dispersión</h4>
+                        <p>Se utilizan para visualizar la relación entre dos variables numéricas. Cada punto en el gráfico representa un par de valores (x, y). Permiten identificar correlaciones, patrones y valores atípicos.</p>
+                         <p><strong>Uso ideal:</strong> Relacionar horas de estudio con calificaciones, peso con altura, etc. ¡Lo exploraremos a fondo más adelante!</p>
+                    </div>
+                </div>
+                <div class="chart-container h-64 md:h-80">
+                    <canvas id="commonChartsCanvas"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="funciones" class="py-12">
+            <h3 class="text-3xl font-bold text-center mb-2">Profundizando en las Funciones Lineales</h3>
+            <p class="text-center text-slate-600 mb-10 max-w-3xl mx-auto">Una función lineal describe una relación constante entre dos variables. Su fórmula es $y = mx + b$ y su gráfica es siempre una línea recta. ¡Interactúa con los controles para ver cómo funciona!</p>
+            
+            <div class="bg-white p-8 rounded-xl shadow-md">
+                <div class="grid lg:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <h4 class="font-semibold text-lg mb-4">Controla la Ecuación: $y = mx + b$</h4>
+                        
+                        <div class="mb-6">
+                            <label for="slider-m" class="font-medium">Pendiente ($m$): <span id="m-value" class="font-bold text-blue-600">1</span></label>
+                            <input type="range" id="slider-m" min="-10" max="10" value="1" step="0.5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            <p id="m-desc" class="text-sm text-slate-600 mt-1">Una pendiente positiva indica que 'y' aumenta cuando 'x' aumenta.</p>
+                        </div>
+                        
+                        <div>
+                            <label for="slider-b" class="font-medium">Intersección Y ($b$): <span id="b-value" class="font-bold text-blue-600">0</span></label>
+                            <input type="range" id="slider-b" min="-10" max="10" value="0" step="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            <p class="text-sm text-slate-600 mt-1">Este es el valor de 'y' cuando la línea cruza el eje vertical ($x=0$).</p>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="linearFunctionCanvas"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="ejemplo" class="py-12">
+            <h3 class="text-3xl font-bold text-center mb-2">Ejemplo Práctico: De la Tabla a la Gráfica</h3>
+            <p class="text-center text-slate-600 mb-10 max-w-3xl mx-auto">Veamos cómo se aplica esto a un caso real. Analizaremos la relación entre las horas de estudio de un estudiante y la calificación obtenida en un examen. Pasa el cursor sobre los puntos del gráfico para ver su correspondencia en la tabla.</p>
+            
+            <div class="grid lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-md">
+                     <h4 class="font-semibold text-lg mb-4">Datos de Estudio</h4>
+                     <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Horas (x)</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Calificación (y)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dataTableBody" class="bg-white divide-y divide-gray-200">
+                                <!-- Filas de datos generadas por JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-md">
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="font-semibold text-lg">Gráfico de Dispersión: Horas vs. Calificación</h4>
+                        <button id="toggleTrendlineBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition">Mostrar Línea de Tendencia</button>
+                    </div>
+                    <div class="chart-container h-[450px]">
+                        <canvas id="scatterPlotCanvas"></canvas>
+                    </div>
+                     <p id="scatter-interpretation" class="text-sm text-slate-600 mt-4 text-center"></p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <footer class="bg-slate-800 text-white mt-12 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h4 class="text-2xl font-bold mb-4">¡Ahora es Tu Turno de Explorar!</h4>
+            <p class="max-w-3xl mx-auto text-slate-300 mb-6">¿En qué otras situaciones crees que sería útil un gráfico de dispersión? ¿Qué tipo de gráfica usarías para mostrar el porcentaje de estudiantes en diferentes clubes escolares?</p>
+            <p class="text-slate-400">Aplicación interactiva de aprendizaje.</p>
+        </div>
+    </footer>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const chartData = {
+        barras: {
+            type: 'bar',
+            data: {
+                labels: ['Producto A', 'Producto B', 'Producto C', 'Producto D'],
+                datasets: [{
+                    label: 'Ventas (miles)',
+                    data: [12, 19, 3, 5],
+                    backgroundColor: ['#60a5fa', '#3b82f6', '#2563eb', '#1d4ed8']
+                }]
+            },
+            options: { scales: { y: { beginAtZero: true } } }
+        },
+        lineas: {
+            type: 'line',
+            data: {
+                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Temperatura (°C)',
+                    data: [15, 17, 20, 22, 25, 28],
+                    borderColor: '#3b82f6',
+                    tension: 0.1
+                }]
+            }
+        },
+        circular: {
+            type: 'pie',
+            data: {
+                labels: ['Marketing', 'Ventas', 'Desarrollo', 'Soporte'],
+                datasets: [{
+                    label: 'Distribución de Presupuesto',
+                    data: [30, 40, 20, 10],
+                    backgroundColor: ['#60a5fa', '#3b82f6', '#2563eb', '#1d4ed8']
+                }]
+            }
+        },
+        dispersion: {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Relación X-Y',
+                    data: [{x: 1, y: 2}, {x: 2, y: 3.5}, {x: 3, y: 4}, {x: 4, y: 6}, {x: 5, y: 5.5}],
+                    backgroundColor: '#3b82f6'
+                }]
+            }
+        }
+    };
+    
+    let commonChart;
+    const commonChartsCanvas = document.getElementById('commonChartsCanvas').getContext('2d');
+
+    function renderCommonChart(type) {
+        if (commonChart) {
+            commonChart.destroy();
+        }
+        const config = chartData[type];
+        commonChart = new Chart(commonChartsCanvas, {
+            type: config.type,
+            data: config.data,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: config.type !== 'bar' } }
+            }
+        });
+    }
+
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const tab = button.dataset.tab;
+
+            tabButtons.forEach(btn => btn.classList.remove('tab-active'));
+            button.classList.add('tab-active');
+
+            tabContents.forEach(content => content.classList.add('hidden'));
+            document.getElementById(`desc-${tab}`).classList.remove('hidden');
+
+            renderCommonChart(tab);
+        });
+    });
+
+    renderCommonChart('barras');
+
+    const mSlider = document.getElementById('slider-m');
+    const bSlider = document.getElementById('slider-b');
+    const mValueSpan = document.getElementById('m-value');
+    const bValueSpan = document.getElementById('b-value');
+    const mDesc = document.getElementById('m-desc');
+    const linearFunctionCanvas = document.getElementById('linearFunctionCanvas').getContext('2d');
+    let linearChart;
+    
+    function updateLinearChart() {
+        const m = parseFloat(mSlider.value);
+        const b = parseFloat(bSlider.value);
+
+        mValueSpan.textContent = m;
+        bValueSpan.textContent = b;
+
+        if (m > 0) mDesc.textContent = "Pendiente positiva: 'y' aumenta cuando 'x' aumenta.";
+        else if (m < 0) mDesc.textContent = "Pendiente negativa: 'y' disminuye cuando 'x' aumenta.";
+        else mDesc.textContent = "Pendiente cero: 'y' se mantiene constante.";
+
+        const data = [];
+        for (let x = -10; x <= 10; x++) {
+            data.push({x: x, y: m * x + b});
+        }
+        
+        linearChart.data.datasets[0].data = data;
+        linearChart.update();
+    }
+    
+    linearChart = new Chart(linearFunctionCanvas, {
+        type: 'line',
+        data: {
+            datasets: [{
+                label: 'y = mx + b',
+                data: [],
+                borderColor: '#ef4444',
+                backgroundColor: '#ef4444',
+                tension: 0.1,
+                pointRadius: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { type: 'linear', position: 'bottom', title: { display: true, text: 'Eje X' } },
+                y: { title: { display: true, text: 'Eje Y' } }
+            }
+        }
+    });
+
+    mSlider.addEventListener('input', updateLinearChart);
+    bSlider.addEventListener('input', updateLinearChart);
+    updateLinearChart();
+
+    const scatterData = [
+        { x: 2, y: 60 }, { x: 4, y: 70 },
+        { x: 6, y: 80 }, { x: 8, y: 90 },
+        { x: 1, y: 55 }, { x: 5, y: 78 },
+        { x: 7, y: 85 }, { x: 9, y: 98 }
+    ].sort((a,b) => a.x - b.x);
+
+    const tableBody = document.getElementById('dataTableBody');
+    scatterData.forEach((d, index) => {
+        const row = document.createElement('tr');
+        row.dataset.index = index;
+        row.innerHTML = `<td class="px-6 py-4 whitespace-nowrap">${d.x}</td><td class="px-6 py-4 whitespace-nowrap">${d.y}</td>`;
+        tableBody.appendChild(row);
+    });
+
+    let scatterPlot;
+    const scatterPlotCanvas = document.getElementById('scatterPlotCanvas').getContext('2d');
+    const trendlineData = {
+        label: 'Línea de Tendencia (y ≈ 5x + 50)',
+        data: [{x:0, y:50}, {x:10, y:100}],
+        type: 'line',
+        borderColor: '#f97316',
+        backgroundColor: '#f97316',
+        pointRadius: 0,
+        borderDash: [5, 5]
+    };
+
+    const scatterInterpretation = document.getElementById('scatter-interpretation');
+    
+    scatterPlot = new Chart(scatterPlotCanvas, {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Datos de Estudiantes',
+                data: scatterData,
+                backgroundColor: '#3b82f6',
+                pointRadius: 6,
+                pointHoverRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { title: { display: true, text: 'Horas de Estudio' }, min: 0, max: 10 },
+                y: { title: { display: true, text: 'Calificación Obtenida' }, min: 40, max: 100 }
+            },
+            onHover: (event, chartElement) => {
+                const tableRows = tableBody.querySelectorAll('tr');
+                tableRows.forEach(row => row.classList.remove('table-row-highlight'));
+                if(chartElement.length > 0) {
+                    const index = chartElement[0].index;
+                    const row = tableBody.querySelector(`tr[data-index='${index}']`);
+                    if(row) {
+                      row.classList.add('table-row-highlight');
+                    }
+                }
+            }
+        }
+    });
+
+    const toggleBtn = document.getElementById('toggleTrendlineBtn');
+    let trendlineVisible = false;
+    toggleBtn.addEventListener('click', () => {
+        trendlineVisible = !trendlineVisible;
+        if (trendlineVisible) {
+            scatterPlot.data.datasets.push(trendlineData);
+            toggleBtn.textContent = 'Ocultar Línea de Tendencia';
+            toggleBtn.classList.replace('bg-blue-500', 'bg-orange-500');
+            toggleBtn.classList.replace('hover:bg-blue-600', 'hover:bg-orange-600');
+            scatterInterpretation.textContent = "La línea naranja muestra la tendencia general: a más horas de estudio, mayor es la calificación esperada. Esto indica una fuerte relación lineal positiva.";
+        } else {
+            scatterPlot.data.datasets.pop();
+            toggleBtn.textContent = 'Mostrar Línea de Tendencia';
+            toggleBtn.classList.replace('bg-orange-500', 'bg-blue-500');
+            toggleBtn.classList.replace('hover:bg-orange-600', 'hover:bg-blue-600');
+            scatterInterpretation.textContent = "";
+        }
+        scatterPlot.update();
+    });
+});
+</script>
+
+</body>
+</html>
