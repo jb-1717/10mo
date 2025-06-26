@@ -9,15 +9,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Chosen Palette: Calm Neutrals & Academic Blue -->
-    <!-- Application Structure Plan: The SPA is designed as a vertical, scrollable learning journey, mirroring the pedagogical flow of the source presentation. It starts with 'why', moves to 'what' (types of graphs in interactive tabs), then 'how' (a deep, interactive dive into linear functions with real-time sliders), and finally 'application' (a practical scatter plot example with hover effects and a toggleable trendline). This structure turns passive slides into an active exploration tool, enhancing understanding and retention. Navigation at the top allows users to jump between key learning modules. -->
-    <!-- Visualization & Content Choices: 
-        - Why graph?: Goal: Inform -> Method: Text blocks with icons. Justification: Simple, direct communication.
-        - Graph Types: Goal: Organize/Compare -> Method: Interactive tabs with small Chart.js examples. Interaction: Clicking tabs reveals graph types. Justification: Compactly organizes foundational knowledge, encouraging exploration.
-        - Linear Functions: Goal: Explain concept -> Method: Interactive Chart.js line chart with sliders for slope (m) and y-intercept (b). Interaction: Sliders update the chart and descriptive text in real-time. Justification: Makes the abstract formula y=mx+b tangible and intuitive, which is the core interactive element.
-        - Practical Example: Goal: Show relationship -> Method: HTML table and an interactive Chart.js scatter plot. Interaction: Hovering a plot point highlights the corresponding table row; a button toggles the trendline. Justification: Visually connects raw data, its graphical representation, and the underlying linear model.
-        - All visualizations use Chart.js on a Canvas element. -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <!-- KaTeX CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <!-- KaTeX JS -->
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -131,7 +128,7 @@
                     <div id="desc-dispersion" class="tab-content hidden">
                         <h4>Gráficos de Dispersión</h4>
                         <p>Se utilizan para visualizar la relación entre dos variables numéricas. Cada punto en el gráfico representa un par de valores (x, y). Permiten identificar correlaciones, patrones y valores atípicos.</p>
-                         <p><strong>Uso ideal:</strong> Relacionar horas de estudio con calificaciones, peso con altura, etc. ¡Lo exploraremos a fondo más adelante!</p>
+                           <p><strong>Uso ideal:</strong> Relacionar horas de estudio con calificaciones, peso con altura, etc. ¡Lo exploraremos a fondo más adelante!</p>
                     </div>
                 </div>
                 <div class="chart-container h-64 md:h-80">
@@ -174,8 +171,8 @@
             
             <div class="grid lg:grid-cols-3 gap-8">
                 <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-md">
-                     <h4 class="font-semibold text-lg mb-4">Datos de Estudio</h4>
-                     <div class="overflow-x-auto">
+                    <h4 class="font-semibold text-lg mb-4">Datos de Estudio</h4>
+                    <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
@@ -197,7 +194,7 @@
                     <div class="chart-container h-[450px]">
                         <canvas id="scatterPlotCanvas"></canvas>
                     </div>
-                     <p id="scatter-interpretation" class="text-sm text-slate-600 mt-4 text-center"></p>
+                    <p id="scatter-interpretation" class="text-sm text-slate-600 mt-4 text-center"></p>
                 </div>
             </div>
         </section>
@@ -215,226 +212,323 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    try {
+        // Configurar KaTeX auto-render
+        if (typeof renderMathInElement === 'function') {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false},
+                ],
+                throwOnError: false
+            });
+        } else {
+            console.warn('KaTeX auto-render no se cargó correctamente');
+        }
 
-    const chartData = {
-        barras: {
-            type: 'bar',
-            data: {
-                labels: ['Producto A', 'Producto B', 'Producto C', 'Producto D'],
-                datasets: [{
-                    label: 'Ventas (miles)',
-                    data: [12, 19, 3, 5],
-                    backgroundColor: ['#60a5fa', '#3b82f6', '#2563eb', '#1d4ed8']
-                }]
+        const chartData = {
+            barras: {
+                type: 'bar',
+                data: {
+                    labels: ['Producto A', 'Producto B', 'Producto C', 'Producto D'],
+                    datasets: [{
+                        label: 'Ventas (miles)',
+                        data: [12, 19, 3, 5],
+                        backgroundColor: ['#60a5fa', '#3b82f6', '#2563eb', '#1d4ed8']
+                    }]
+                },
+                options: { scales: { y: { beginAtZero: true } } }
             },
-            options: { scales: { y: { beginAtZero: true } } }
-        },
-        lineas: {
-            type: 'line',
-            data: {
-                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
-                datasets: [{
-                    label: 'Temperatura (°C)',
-                    data: [15, 17, 20, 22, 25, 28],
-                    borderColor: '#3b82f6',
-                    tension: 0.1
-                }]
-            }
-        },
-        circular: {
-            type: 'pie',
-            data: {
-                labels: ['Marketing', 'Ventas', 'Desarrollo', 'Soporte'],
-                datasets: [{
-                    label: 'Distribución de Presupuesto',
-                    data: [30, 40, 20, 10],
-                    backgroundColor: ['#60a5fa', '#3b82f6', '#2563eb', '#1d4ed8']
-                }]
-            }
-        },
-        dispersion: {
-            type: 'scatter',
-            data: {
-                datasets: [{
-                    label: 'Relación X-Y',
-                    data: [{x: 1, y: 2}, {x: 2, y: 3.5}, {x: 3, y: 4}, {x: 4, y: 6}, {x: 5, y: 5.5}],
-                    backgroundColor: '#3b82f6'
-                }]
-            }
-        }
-    };
-    
-    let commonChart;
-    const commonChartsCanvas = document.getElementById('commonChartsCanvas').getContext('2d');
-
-    function renderCommonChart(type) {
-        if (commonChart) {
-            commonChart.destroy();
-        }
-        const config = chartData[type];
-        commonChart = new Chart(commonChartsCanvas, {
-            type: config.type,
-            data: config.data,
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: config.type !== 'bar' } }
-            }
-        });
-    }
-
-    const tabButtons = document.querySelectorAll('.tab-btn');
-    const tabContents = document.querySelectorAll('.tab-content');
-    tabButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const tab = button.dataset.tab;
-
-            tabButtons.forEach(btn => btn.classList.remove('tab-active'));
-            button.classList.add('tab-active');
-
-            tabContents.forEach(content => content.classList.add('hidden'));
-            document.getElementById(`desc-${tab}`).classList.remove('hidden');
-
-            renderCommonChart(tab);
-        });
-    });
-
-    renderCommonChart('barras');
-
-    const mSlider = document.getElementById('slider-m');
-    const bSlider = document.getElementById('slider-b');
-    const mValueSpan = document.getElementById('m-value');
-    const bValueSpan = document.getElementById('b-value');
-    const mDesc = document.getElementById('m-desc');
-    const linearFunctionCanvas = document.getElementById('linearFunctionCanvas').getContext('2d');
-    let linearChart;
-    
-    function updateLinearChart() {
-        const m = parseFloat(mSlider.value);
-        const b = parseFloat(bSlider.value);
-
-        mValueSpan.textContent = m;
-        bValueSpan.textContent = b;
-
-        if (m > 0) mDesc.textContent = "Pendiente positiva: 'y' aumenta cuando 'x' aumenta.";
-        else if (m < 0) mDesc.textContent = "Pendiente negativa: 'y' disminuye cuando 'x' aumenta.";
-        else mDesc.textContent = "Pendiente cero: 'y' se mantiene constante.";
-
-        const data = [];
-        for (let x = -10; x <= 10; x++) {
-            data.push({x: x, y: m * x + b});
-        }
-        
-        linearChart.data.datasets[0].data = data;
-        linearChart.update();
-    }
-    
-    linearChart = new Chart(linearFunctionCanvas, {
-        type: 'line',
-        data: {
-            datasets: [{
-                label: 'y = mx + b',
-                data: [],
-                borderColor: '#ef4444',
-                backgroundColor: '#ef4444',
-                tension: 0.1,
-                pointRadius: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: { type: 'linear', position: 'bottom', title: { display: true, text: 'Eje X' } },
-                y: { title: { display: true, text: 'Eje Y' } }
-            }
-        }
-    });
-
-    mSlider.addEventListener('input', updateLinearChart);
-    bSlider.addEventListener('input', updateLinearChart);
-    updateLinearChart();
-
-    const scatterData = [
-        { x: 2, y: 60 }, { x: 4, y: 70 },
-        { x: 6, y: 80 }, { x: 8, y: 90 },
-        { x: 1, y: 55 }, { x: 5, y: 78 },
-        { x: 7, y: 85 }, { x: 9, y: 98 }
-    ].sort((a,b) => a.x - b.x);
-
-    const tableBody = document.getElementById('dataTableBody');
-    scatterData.forEach((d, index) => {
-        const row = document.createElement('tr');
-        row.dataset.index = index;
-        row.innerHTML = `<td class="px-6 py-4 whitespace-nowrap">${d.x}</td><td class="px-6 py-4 whitespace-nowrap">${d.y}</td>`;
-        tableBody.appendChild(row);
-    });
-
-    let scatterPlot;
-    const scatterPlotCanvas = document.getElementById('scatterPlotCanvas').getContext('2d');
-    const trendlineData = {
-        label: 'Línea de Tendencia (y ≈ 5x + 50)',
-        data: [{x:0, y:50}, {x:10, y:100}],
-        type: 'line',
-        borderColor: '#f97316',
-        backgroundColor: '#f97316',
-        pointRadius: 0,
-        borderDash: [5, 5]
-    };
-
-    const scatterInterpretation = document.getElementById('scatter-interpretation');
-    
-    scatterPlot = new Chart(scatterPlotCanvas, {
-        type: 'scatter',
-        data: {
-            datasets: [{
-                label: 'Datos de Estudiantes',
-                data: scatterData,
-                backgroundColor: '#3b82f6',
-                pointRadius: 6,
-                pointHoverRadius: 8
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: { title: { display: true, text: 'Horas de Estudio' }, min: 0, max: 10 },
-                y: { title: { display: true, text: 'Calificación Obtenida' }, min: 40, max: 100 }
+            lineas: {
+                type: 'line',
+                data: {
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Temperatura (°C)',
+                        data: [15, 17, 20, 22, 25, 28],
+                        borderColor: '#3b82f6',
+                        tension: 0.1
+                    }]
+                }
             },
-            onHover: (event, chartElement) => {
-                const tableRows = tableBody.querySelectorAll('tr');
-                tableRows.forEach(row => row.classList.remove('table-row-highlight'));
-                if(chartElement.length > 0) {
-                    const index = chartElement[0].index;
-                    const row = tableBody.querySelector(`tr[data-index='${index}']`);
-                    if(row) {
-                      row.classList.add('table-row-highlight');
-                    }
+            circular: {
+                type: 'pie',
+                data: {
+                    labels: ['Marketing', 'Ventas', 'Desarrollo', 'Soporte'],
+                    datasets: [{
+                        label: 'Distribución de Presupuesto',
+                        data: [30, 40, 20, 10],
+                        backgroundColor: ['#60a5fa', '#3b82f6', '#2563eb', '#1d4ed8']
+                    }]
+                }
+            },
+            dispersion: {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Relación X-Y',
+                        data: [{x: 1, y: 2}, {x: 2, y: 3.5}, {x: 3, y: 4}, {x: 4, y: 6}, {x: 5, y: 5.5}],
+                        backgroundColor: '#3b82f6'
+                    }]
                 }
             }
-        }
-    });
-
-    const toggleBtn = document.getElementById('toggleTrendlineBtn');
-    let trendlineVisible = false;
-    toggleBtn.addEventListener('click', () => {
-        trendlineVisible = !trendlineVisible;
-        if (trendlineVisible) {
-            scatterPlot.data.datasets.push(trendlineData);
-            toggleBtn.textContent = 'Ocultar Línea de Tendencia';
-            toggleBtn.classList.replace('bg-blue-500', 'bg-orange-500');
-            toggleBtn.classList.replace('hover:bg-blue-600', 'hover:bg-orange-600');
-            scatterInterpretation.textContent = "La línea naranja muestra la tendencia general: a más horas de estudio, mayor es la calificación esperada. Esto indica una fuerte relación lineal positiva.";
+        };
+        
+        let commonChart;
+        const commonChartsCanvas = document.getElementById('commonChartsCanvas');
+        
+        if (!commonChartsCanvas) {
+            console.error('No se encontró el canvas para gráficos comunes');
         } else {
-            scatterPlot.data.datasets.pop();
-            toggleBtn.textContent = 'Mostrar Línea de Tendencia';
-            toggleBtn.classList.replace('bg-orange-500', 'bg-blue-500');
-            toggleBtn.classList.replace('hover:bg-orange-600', 'hover:bg-blue-600');
-            scatterInterpretation.textContent = "";
+            const ctx = commonChartsCanvas.getContext('2d');
+
+            // Renderizar el gráfico común basado en el tipo seleccionado
+            function renderCommonChart(type) {
+                try {
+                    if (commonChart) {
+                        commonChart.destroy();
+                    }
+                    const config = chartData[type];
+                    commonChart = new Chart(ctx, {
+                        type: config.type,
+                        data: config.data,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: config.type !== 'bar' } }
+                        }
+                    });
+                } catch (e) {
+                    console.error('Error al renderizar gráfico común:', e);
+                }
+            }
+
+            // Lógica para los botones de las pestañas
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            if (tabButtons.length && tabContents.length) {
+                tabButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const tab = button.dataset.tab;
+
+                        tabButtons.forEach(btn => btn.classList.remove('tab-active'));
+                        button.classList.add('tab-active');
+
+                        tabContents.forEach(content => content.classList.add('hidden'));
+                        document.getElementById(`desc-${tab}`).classList.remove('hidden');
+
+                        renderCommonChart(tab);
+                    });
+                });
+
+                renderCommonChart('barras');
+            } else {
+                console.warn('No se encontraron botones de pestañas o contenidos');
+            }
         }
-        scatterPlot.update();
-    });
+
+        // Controles para la función lineal
+        const mSlider = document.getElementById('slider-m');
+        const bSlider = document.getElementById('slider-b');
+        const mValueSpan = document.getElementById('m-value');
+        const bValueSpan = document.getElementById('b-value');
+        const mDesc = document.getElementById('m-desc');
+        const linearFunctionCanvas = document.getElementById('linearFunctionCanvas');
+        
+        if (!linearFunctionCanvas) {
+            console.error('No se encontró el canvas para la función lineal');
+        } else {
+            const linearCtx = linearFunctionCanvas.getContext('2d');
+            let linearChart;
+            
+            try {
+                linearChart = new Chart(linearCtx, {
+                    type: 'line',
+                    data: {
+                        datasets: [{
+                            label: 'y = mx + b',
+                            data: [],
+                            borderColor: '#ef4444',
+                            backgroundColor: '#ef4444',
+                            tension: 0.1,
+                            pointRadius: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                type: 'linear',
+                                position: 'bottom',
+                                title: { display: true, text: 'Eje X' },
+                                min: -10,
+                                max: 10
+                            },
+                            y: {
+                                title: { display: true, text: 'Eje Y' },
+                                min: -100,
+                                max: 100
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+
+                // Función para actualizar el gráfico lineal
+                function updateLinearChart() {
+                    try {
+                        const m = parseFloat(mSlider.value);
+                        const b = parseFloat(bSlider.value);
+
+                        mValueSpan.textContent = m;
+                        bValueSpan.textContent = b;
+
+                        if (m > 0) mDesc.textContent = "Pendiente positiva: 'y' aumenta cuando 'x' aumenta.";
+                        else if (m < 0) mDesc.textContent = "Pendiente negativa: 'y' disminuye cuando 'x' aumenta.";
+                        else mDesc.textContent = "Pendiente cero: 'y' se mantiene constante.";
+
+                        const data = [];
+                        for (let x = -10; x <= 10; x += 0.5) {
+                            data.push({x: x, y: m * x + b});
+                        }
+                        
+                        linearChart.data.datasets[0].data = data;
+                        linearChart.update();
+                    } catch (e) {
+                        console.error('Error al actualizar gráfico lineal:', e);
+                    }
+                }
+                
+                if (mSlider && bSlider && mValueSpan && bValueSpan && mDesc) {
+                    mSlider.addEventListener('input', updateLinearChart);
+                    bSlider.addEventListener('input', updateLinearChart);
+                    updateLinearChart();
+                } else {
+                    console.warn('Faltan elementos para los controles de la función lineal');
+                }
+            } catch (e) {
+                console.error('Error al crear gráfico lineal:', e);
+            }
+        }
+
+        // Datos para el ejemplo práctico de dispersión
+        const scatterData = [
+            { x: 2, y: 60 }, { x: 4, y: 70 },
+            { x: 6, y: 80 }, { x: 8, y: 90 },
+            { x: 1, y: 55 }, { x: 5, y: 78 },
+            { x: 7, y: 85 }, { x: 9, y: 98 }
+        ].sort((a,b) => a.x - b.x);
+
+        const tableBody = document.getElementById('dataTableBody');
+        if (tableBody) {
+            scatterData.forEach((d, index) => {
+                const row = document.createElement('tr');
+                row.dataset.index = index;
+                row.innerHTML = `<td class="px-6 py-4 whitespace-nowrap">${d.x}</td><td class="px-6 py-4 whitespace-nowrap">${d.y}</td>`;
+                tableBody.appendChild(row);
+            });
+        } else {
+            console.warn('No se encontró el cuerpo de la tabla de datos');
+        }
+
+        const scatterPlotCanvas = document.getElementById('scatterPlotCanvas');
+        if (!scatterPlotCanvas) {
+            console.error('No se encontró el canvas para el gráfico de dispersión');
+        } else {
+            const scatterCtx = scatterPlotCanvas.getContext('2d');
+            let scatterPlot;
+            
+            try {
+                scatterPlot = new Chart(scatterCtx, {
+                    type: 'scatter',
+                    data: {
+                        datasets: [{
+                            label: 'Datos de Estudiantes',
+                            data: scatterData,
+                            backgroundColor: '#3b82f6',
+                            pointRadius: 6,
+                            pointHoverRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: { title: { display: true, text: 'Horas de Estudio' }, min: 0, max: 10 },
+                            y: { title: { display: true, text: 'Calificación Obtenida' }, min: 40, max: 100 }
+                        },
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        onHover: (event, chartElement) => {
+                            const tableRows = tableBody ? tableBody.querySelectorAll('tr') : [];
+                            tableRows.forEach(row => row.classList.remove('table-row-highlight'));
+                            if(chartElement.length > 0) {
+                                const index = chartElement[0].index;
+                                const row = tableBody.querySelector(`tr[data-index='${index}']`);
+                                if(row) {
+                                    row.classList.add('table-row-highlight');
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Datos para la línea de tendencia
+                const trendlineData = {
+                    label: 'Línea de Tendencia (y ≈ 5x + 50)',
+                    data: [{x:0, y:50}, {x:10, y:100}],
+                    type: 'line',
+                    borderColor: '#f97316',
+                    backgroundColor: '#f97316',
+                    pointRadius: 0,
+                    borderDash: [5, 5]
+                };
+
+                const scatterInterpretation = document.getElementById('scatter-interpretation');
+                const toggleBtn = document.getElementById('toggleTrendlineBtn');
+                
+                if (toggleBtn) {
+                    let trendlineVisible = false;
+                    toggleBtn.addEventListener('click', () => {
+                        try {
+                            trendlineVisible = !trendlineVisible;
+                            if (trendlineVisible) {
+                                scatterPlot.data.datasets.push(trendlineData);
+                                toggleBtn.textContent = 'Ocultar Línea de Tendencia';
+                                toggleBtn.classList.replace('bg-blue-500', 'bg-orange-500');
+                                toggleBtn.classList.replace('hover:bg-blue-600', 'hover:bg-orange-600');
+                                if (scatterInterpretation) {
+                                    scatterInterpretation.textContent = "La línea naranja muestra la tendencia general: a más horas de estudio, mayor es la calificación esperada. Esto indica una fuerte relación lineal positiva.";
+                                }
+                            } else {
+                                scatterPlot.data.datasets.pop();
+                                toggleBtn.textContent = 'Mostrar Línea de Tendencia';
+                                toggleBtn.classList.replace('bg-orange-500', 'bg-blue-500');
+                                toggleBtn.classList.replace('hover:bg-orange-600', 'hover:bg-blue-600');
+                                if (scatterInterpretation) {
+                                    scatterInterpretation.textContent = "";
+                                }
+                            }
+                            scatterPlot.update();
+                        } catch (e) {
+                            console.error('Error al alternar línea de tendencia:', e);
+                        }
+                    });
+                } else {
+                    console.warn('No se encontró el botón de alternar línea de tendencia');
+                }
+            } catch (e) {
+                console.error('Error al crear gráfico de dispersión:', e);
+            }
+        }
+    } catch (e) {
+        console.error('Error global en la aplicación:', e);
+    }
 });
 </script>
 
