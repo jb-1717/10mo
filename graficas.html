@@ -14,10 +14,11 @@
     <!-- KaTeX JS -->
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
-
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
         }
         .chart-container {
             position: relative;
@@ -42,6 +43,33 @@
             transform: scale(1.02);
             transition: all 0.2s ease-in-out;
         }
+        .info-box {
+            background: #fff;
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .info-box h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        .info-box p, .info-box ul {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #4a5568;
+        }
+        .info-box ul {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+        }
+        .info-box ul li {
+            margin-bottom: 0.5rem;
+        }
+        button {
+            transition: background-color 0.2s;
+        }
     </style>
 </head>
 <body class="bg-stone-50 text-slate-800">
@@ -55,13 +83,14 @@
                     <a href="#tipos" class="text-gray-600 hover:text-blue-600 transition">Tipos de Gráficas</a>
                     <a href="#funciones" class="text-gray-600 hover:text-blue-600 transition">Funciones Lineales</a>
                     <a href="#ejemplo" class="text-gray-600 hover:text-blue-600 transition">Ejemplo Práctico</a>
+                    <a href="#conceptos" class="text-gray-600 hover:text-blue-600 transition">Conceptos Clave</a>
                 </div>
             </div>
         </nav>
     </header>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        
+
         <section id="intro" class="text-center py-16">
             <h2 class="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">Explorando Datos: Gráficas, Tablas y Funciones Lineales</h2>
             <p class="mt-6 text-lg max-w-3xl mx-auto text-slate-600">Una guía interactiva para entender cómo visualizar y analizar información de manera efectiva.</p>
@@ -94,11 +123,9 @@
             </div>
         </section>
 
-
         <section id="tipos" class="py-12">
             <h3 class="text-3xl font-bold text-center mb-2">El Punto de Partida: Tablas y Tipos de Gráficas</h3>
             <p class="text-center text-slate-600 mb-10 max-w-3xl mx-auto">Todo análisis visual comienza con datos organizados en tablas. A partir de ahí, elegimos la gráfica adecuada para contar la historia que esconden los números. Explora los tipos más comunes a continuación.</p>
-            
             <div class="border-b border-gray-200 mb-6">
                 <nav class="flex -mb-px space-x-6" aria-label="Tabs">
                     <button class="tab-btn tab-active whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" data-tab="barras">Barras</button>
@@ -107,7 +134,6 @@
                     <button class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="dispersion">Dispersión</button>
                 </nav>
             </div>
-
             <div class="grid lg:grid-cols-2 gap-8 items-center">
                 <div class="prose max-w-none">
                     <div id="desc-barras" class="tab-content">
@@ -128,7 +154,7 @@
                     <div id="desc-dispersion" class="tab-content hidden">
                         <h4>Gráficos de Dispersión</h4>
                         <p>Se utilizan para visualizar la relación entre dos variables numéricas. Cada punto en el gráfico representa un par de valores (x, y). Permiten identificar correlaciones, patrones y valores atípicos.</p>
-                           <p><strong>Uso ideal:</strong> Relacionar horas de estudio con calificaciones, peso con altura, etc. ¡Lo exploraremos a fondo más adelante!</p>
+                        <p><strong>Uso ideal:</strong> Relacionar horas de estudio con calificaciones, peso con altura, etc. ¡Lo exploraremos a fondo más adelante!</p>
                     </div>
                 </div>
                 <div class="chart-container h-64 md:h-80">
@@ -140,18 +166,15 @@
         <section id="funciones" class="py-12">
             <h3 class="text-3xl font-bold text-center mb-2">Profundizando en las Funciones Lineales</h3>
             <p class="text-center text-slate-600 mb-10 max-w-3xl mx-auto">Una función lineal describe una relación constante entre dos variables. Su fórmula es $y = mx + b$ y su gráfica es siempre una línea recta. ¡Interactúa con los controles para ver cómo funciona!</p>
-            
             <div class="bg-white p-8 rounded-xl shadow-md">
                 <div class="grid lg:grid-cols-2 gap-8 items-center">
                     <div>
                         <h4 class="font-semibold text-lg mb-4">Controla la Ecuación: $y = mx + b$</h4>
-                        
                         <div class="mb-6">
                             <label for="slider-m" class="font-medium">Pendiente ($m$): <span id="m-value" class="font-bold text-blue-600">1</span></label>
                             <input type="range" id="slider-m" min="-10" max="10" value="1" step="0.5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                             <p id="m-desc" class="text-sm text-slate-600 mt-1">Una pendiente positiva indica que 'y' aumenta cuando 'x' aumenta.</p>
                         </div>
-                        
                         <div>
                             <label for="slider-b" class="font-medium">Intersección Y ($b$): <span id="b-value" class="font-bold text-blue-600">0</span></label>
                             <input type="range" id="slider-b" min="-10" max="10" value="0" step="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
@@ -168,7 +191,6 @@
         <section id="ejemplo" class="py-12">
             <h3 class="text-3xl font-bold text-center mb-2">Ejemplo Práctico: De la Tabla a la Gráfica</h3>
             <p class="text-center text-slate-600 mb-10 max-w-3xl mx-auto">Veamos cómo se aplica esto a un caso real. Analizaremos la relación entre las horas de estudio de un estudiante y la calificación obtenida en un examen. Pasa el cursor sobre los puntos del gráfico para ver su correspondencia en la tabla.</p>
-            
             <div class="grid lg:grid-cols-3 gap-8">
                 <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-md">
                     <h4 class="font-semibold text-lg mb-4">Datos de Estudio</h4>
@@ -199,8 +221,92 @@
             </div>
         </section>
 
+        <section id="conceptos" class="py-12">
+            <h3 class="text-3xl font-bold text-center mb-2">Conceptos Clave y Ejemplos Adicionales</h3>
+            <p class="text-center text-slate-600 mb-10 max-w-3xl mx-auto">Refuerza tu aprendizaje con estos ejemplos y explicaciones detalladas.</p>
+
+            <div class="info-box">
+                <h2>¿Qué es una función lineal?</h2>
+                <p>Una función lineal es una ecuación matemática que describe una relación constante entre dos variables. Tiene la forma:</p>
+                <p>$$ y = mx + b $$</p>
+                <ul>
+                    <li>$y$: valor resultante o dependiente.</li>
+                    <li>$x$: valor independiente o de entrada.</li>
+                    <li>$m$: <strong>pendiente</strong> de la recta (indica cuánto cambia $y$ por cada unidad que aumenta $x$).</li>
+                    <li>$b$: <strong>intersección Y</strong> (el valor donde la recta cruza el eje $y$, cuando $x = 0$).</li>
+                </ul>
+                <br>
+                <p><strong>Ejemplo de aplicación</strong></p>
+                <p>Supongamos que tenemos la función $y = 2x + 3$. ¿Cuál es el valor de $y$ cuando $x = 4$?</p>
+                <br>
+                <strong>Solución</strong>
+                <ul>
+                    <li>Partimos de la función: $y = 2x + 3$</li>
+                    <li>Sustituimos $x$ por 4: $y = 2(4) + 3$</li>
+                    <li>Multiplicamos: $y = 8 + 3$</li>
+                    <li>Sumamos: $y = 11$</li>
+                    <li>Por lo tanto, cuando $x = 4$, el valor de $y$ es 11.</li>
+                </ul>
+                <div class="chart-container h-[250px]">
+                    <img src="https://quickchart.io/chart?c=%7Btype%3A'line'%2Cdata%3A%7Blabels%3A%5B0%2C1%2C2%2C3%2C4%2C5%5D%2Cdatasets%3A%5B%7Blabel%3A'y%20%3D%202x%20%2B%203'%2Cdata%3A%5B3%2C5%2C7%2C9%2C11%2C13%5D%2Cfill%3Afalse%2CborderColor%3A'blue'%7D%5D%7D%2Coptions%3A%7Btitle%3A%7Bdisplay%3Atrue%2Ctext%3A'Gr%C3%A1fica%20de%20y%20%3D%202x%20%2B%203'%7D%2Cscales%3A%7BxAxes%3A%5B%7BscaleLabel%3A%7Bdisplay%3Atrue%2ClabelString%3A'x'%7D%7D%5D%2CyAxes%3A%5B%7BscaleLabel%3A%7Bdisplay%3Atrue%2ClabelString%3A'y'%7D%7D%5D%7D%7D%7D" alt="Gráfica de y = 2x + 3" class="mx-auto my-4 w-full h-full object-contain">
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h2>Interpretar pendientes y calcular calificaciones</h2>
+                <p>La pendiente de una recta indica la tasa de cambio entre dos variables. En este caso, la calificación de un estudiante depende de las horas que estudia.</p>
+                <br>
+                <p><strong>Ejemplo de aplicación</strong></p>
+                <p>Un estudiante estudia por 3 horas y obtiene una calificación de 80 puntos. Si la relación entre horas de estudio y calificación es lineal y se sabe que por 0 horas de estudio la calificación es 50 puntos, ¿cuál es la pendiente de la función lineal que describe esta relación?</p>
+                <br>
+                <p><strong>Solución</strong></p>
+                <p>Tenemos que un estudiante que no estudia, es decir que estudió 0 horas, logra sacar 50 puntos y también tenemos que otro estudiante que estudió 3 horas obtiene 80 puntos. Podemos hallar la pendiente con la fórmula:</p>
+                <p>$$ m = \frac{y_2 - y_1}{x_2 - x_1} = \frac{80\,pts - 50\,pts}{3\,h - 0\,h} = \frac{30\,pts}{3\,h} = 10\,pts/h $$</p>
+                <p>Entonces, la función que modela esta relación es: $y = (10\,pts/h) x + 50\,pts$</p>
+                <br>
+                <p><strong>¿Qué calificación tendría un estudiante que estudia 5 horas?</strong></p>
+                <ul>
+                    <li>Usamos la función: $y = (10\,pts/h) x + 50\,pts$</li>
+                    <li>Reemplazamos $x = 5$: $y = (10\,pts/h)(5\,h) + 50\,pts$</li>
+                    <li>Multiplicamos: $y = 50\,pts + 50\,pts$</li>
+                    <li>Resultado: $y = 100\,pts$</li>
+                    <li>Un estudiante que estudia 5 horas sacaría 100 puntos. Este resultado se puede comprobar observando la gráfica de abajo.</li>
+                </ul>
+                <div class="chart-container h-[250px]">
+                    <img src="https://quickchart.io/chart?c=%7Btype%3A'line'%2Cdata%3A%7Blabels%3A%5B0%2C1%2C2%2C3%2C4%2C5%5D%2Cdatasets%3A%5B%7Blabel%3A'y%20%3D%2010x%20%2B%2050'%2Cdata%3A%5B50%2C60%2C70%2C80%2C90%2C100%5D%2Cfill%3Afalse%2CborderColor%3A'green'%7D%5D%7D%2Coptions%3A%7Btitle%3A%7Bdisplay%3Atrue%2Ctext%3A'Gr%C3%A1fica%20de%20y%20%3D%2010x%20%2B%2050'%7D%2Cscales%3A%7BxAxes%3A%5B%7BscaleLabel%3A%7Bdisplay%3Atrue%2ClabelString%3A'Horas%20de%20estudio'%7D%7D%5D%2CyAxes%3A%5B%7BscaleLabel%3A%7Bdisplay%3Atrue%2ClabelString%3A'Calificaci%C3%B3n'%7D%7D%5D%7D%7D%7D" alt="Gráfica de y = 10x + 50" class="mx-auto my-4 w-full h-full object-contain">
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h2>¿Cómo leer un gráfico de barras?</h2>
+                <p>Un gráfico de barras permite comparar visualmente cantidades entre categorías. Cada barra representa una cantidad específica y su altura indica el valor correspondiente.</p>
+                <br>
+                <p><strong>Ejemplo de aplicación</strong></p>
+                <p>Un gráfico de barras muestra que un producto A vendió 150 unidades y que un producto B vendió 200 unidades. Si el producto C vendió la mitad de las unidades del producto B, ¿cuántas unidades vendió el producto C?</p>
+                <br>
+                <p><strong>Solución</strong></p>
+                <p><strong>¿Cómo sabemos que el producto C vendió la mitad que el B?</strong></p>
+                <ul>
+                    <li>Producto B: 200 unidades</li>
+                    <li>La mitad de 200 se calcula así: $$ \frac{200}{2} = 100 $$</li>
+                    <li>Por lo tanto, el producto C vendió 100 unidades.</li>
+                    <li>Esto se puede verificar visualmente: la barra de C mide la mitad que la de B.</li>
+                </ul>
+                <div class="chart-container h-[250px]">
+                    <img src="https://quickchart.io/chart?c=%7Btype%3A'bar'%2Cdata%3A%7Blabels%3A%5B'Producto%20A'%2C'Producto%20B'%2C'Producto%20C'%5D%2Cdatasets%3A%5B%7Blabel%3A'Unidades%20vendidas'%2Cdata%3A%5B150%2C200%2C100%5D%7D%5D%7D%2Coptions%3A%7Btitle%3A%7Bdisplay%3Atrue%2Ctext%3A'Gr%C3%A1fico%20de%20barras%20de%20ventas%20por%20producto'%7D%2Cscales%3A%7BxAxes%3A%5B%7BscaleLabel%3A%7Bdisplay%3Atrue%2ClabelString%3A'Producto'%7D%7D%5D%2CyAxes%3A%5B%7Bticks%3A%7BbeginAtZero%3Atrue%2Cmin%3A0%2Cmax%3A200%7D%2CscaleLabel%3A%7Bdisplay%3Atrue%2ClabelString%3A'Unidades%20vendidas'%7D%7D%5D%7D%7D%7D" alt="Gráfico de barras de productos" class="mx-auto my-4 w-full h-full object-contain">
+                </div>
+
+                <p>Se puede decir que en resumen tenemos que:</p>
+                <ul>
+                    <li>El producto A vendió 150 unidades.</li>
+                    <li>El producto B vendió 200 unidades.</li>
+                    <li>El producto C vendió 100 unidades.</li>
+                </ul>
+            </div>
+        </section>
+
     </main>
-    
+
     <footer class="bg-slate-800 text-white mt-12 py-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h4 class="text-2xl font-bold mb-4">¡Ahora es Tu Turno de Explorar!</h4>
@@ -208,7 +314,6 @@
             <p class="text-slate-400">Aplicación interactiva de aprendizaje.</p>
         </div>
     </footer>
-
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -273,10 +378,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         };
-        
+
         let commonChart;
         const commonChartsCanvas = document.getElementById('commonChartsCanvas');
-        
+
         if (!commonChartsCanvas) {
             console.error('No se encontró el canvas para gráficos comunes');
         } else {
@@ -306,7 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Lógica para los botones de las pestañas
             const tabButtons = document.querySelectorAll('.tab-btn');
             const tabContents = document.querySelectorAll('.tab-content');
-            
+
             if (tabButtons.length && tabContents.length) {
                 tabButtons.forEach(button => {
                     button.addEventListener('click', () => {
@@ -335,13 +440,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const bValueSpan = document.getElementById('b-value');
         const mDesc = document.getElementById('m-desc');
         const linearFunctionCanvas = document.getElementById('linearFunctionCanvas');
-        
+
         if (!linearFunctionCanvas) {
             console.error('No se encontró el canvas para la función lineal');
         } else {
             const linearCtx = linearFunctionCanvas.getContext('2d');
             let linearChart;
-            
+
             try {
                 linearChart = new Chart(linearCtx, {
                     type: 'line',
@@ -395,14 +500,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         for (let x = -10; x <= 10; x += 0.5) {
                             data.push({x: x, y: m * x + b});
                         }
-                        
+
                         linearChart.data.datasets[0].data = data;
                         linearChart.update();
                     } catch (e) {
                         console.error('Error al actualizar gráfico lineal:', e);
                     }
                 }
-                
+
                 if (mSlider && bSlider && mValueSpan && bValueSpan && mDesc) {
                     mSlider.addEventListener('input', updateLinearChart);
                     bSlider.addEventListener('input', updateLinearChart);
@@ -441,7 +546,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             const scatterCtx = scatterPlotCanvas.getContext('2d');
             let scatterPlot;
-            
+
             try {
                 scatterPlot = new Chart(scatterCtx, {
                     type: 'scatter',
@@ -491,7 +596,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const scatterInterpretation = document.getElementById('scatter-interpretation');
                 const toggleBtn = document.getElementById('toggleTrendlineBtn');
-                
+
                 if (toggleBtn) {
                     let trendlineVisible = false;
                     toggleBtn.addEventListener('click', () => {
